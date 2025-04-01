@@ -1,40 +1,59 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
-import { Visitor } from './visitor.model';
 import { Store } from '@ngrx/store';
-import { addVisitor, removeVisitor } from './visitor.actions';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Visitor } from './visitor.model';
+import { checkInVisitor, checkOutVisitor } from './visitor.actions';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class VisitorService {
-  constructor(private firestore: AngularFirestore, private store: Store) {}
+  constructor(private afs: AngularFirestore, private store: Store) {}
 
-  // Get visitors from Firebase Firestore
   getVisitors(): Observable<Visitor[]> {
-    return this.firestore.collection<Visitor>('visitors').valueChanges({ idField: 'id' });
+    return this.afs
+      .collection<Visitor>('visitors')
+      .valueChanges({ idField: 'id' })
+      .pipe(
+        map((visitors) =>
+          visitors.map((visitor) => ({
+            ...visitor,
+            checkIn: (visitor.checkIn as any).toDate(),
+            checkOut: visitor.checkOut ? (visitor.checkOut as any).toDate() : undefined,
+          }))
+        )
+      );
   }
 
-  // Add visitor to Firestore and dispatch to store
   addVisitor(visitor: Visitor) {
-    this.firestore
+    this.afs
       .collection('visitors')
-      .add(visitor)
+      .doc(visitor.id)
+      .set({
+        ...visitor,
+        checkIn: visitor.checkIn, // Firebase will handle Date objects
+        checkOut: visitor.checkOut || null,
+      })
       .then(() => {
-        // Dispatch to NgRx Store, pass the visitor as an object with 'visitor' property
-        this.store.dispatch(addVisitor({ visitor }));
+        this.store.dispatch(checkInVisitor({ visitor })); // Dispatch NgRx action
+      })
+      .catch((error) => {
+        console.error('Error adding visitor to Firebase:', error);
       });
   }
 
-  // Remove visitor from Firestore and dispatch to store
   removeVisitor(visitorId: string) {
-    this.firestore
-      .doc(`visitors/${visitorId}`)
-      .delete()
+    this.afs
+      .collection('visitors')
+      .doc(visitorId)
+      .update({ checkOut: new Date() })
       .then(() => {
-        // Dispatch to NgRx Store, pass the visitorId
-        this.store.dispatch(removeVisitor({ visitorId }));
+        this.store.dispatch(checkOutVisitor({ id: visitorId })); // Dispatch NgRx action
+      })
+      .catch((error) => {
+        console.error('Error removing visitor from Firebase:', error);
       });
   }
 }

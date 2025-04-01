@@ -1,1 +1,5 @@
-<p>qr-code-generator works!</p>
+<div *ngIf="visitorData" class="text-center p-4">
+    <h3 class="text-lg font-semibold mb-2">Visitor Pass</h3>
+    <canvas #qrCanvas></canvas>
+    <p class="mt-2 text-gray-600">Scan this QR code to check out</p>
+  </div>

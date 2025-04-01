@@ -1,1 +1,23 @@
-<p>visitor-form works!</p>
+<form [formGroup]="visitorForm" (ngSubmit)="onSubmit()" class="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
+    <h2 class="text-2xl font-bold mb-4 text-center">Visitor Registration</h2>
+  
+    <div class="mb-4">
+      <label for="name" class="block text-gray-700">Name</label>
+      <input id="name" formControlName="name" type="text" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <div *ngIf="visitorForm.get('name')?.invalid && visitorForm.get('name')?.touched" class="text-red-500 text-sm">Name is required</div>
+    </div>
+  
+    <div class="mb-4">
+      <label for="phone" class="block text-gray-700">Phone</label>
+      <input id="phone" formControlName="phone" type="text" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <div *ngIf="visitorForm.get('phone')?.invalid && visitorForm.get('phone')?.touched" class="text-red-500 text-sm">Enter a valid 10-digit phone number</div>
+    </div>
+  
+    <div class="mb-4">
+      <label for="purpose" class="block text-gray-700">Purpose of Visit</label>
+      <input id="purpose" formControlName="purpose" type="text" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <div *ngIf="visitorForm.get('purpose')?.invalid && visitorForm.get('purpose')?.touched" class="text-red-500 text-sm">Purpose is required</div>
+    </div>
+  
+    <button type="submit" [disabled]="visitorForm.invalid" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400">Check In</button>
+  </form>

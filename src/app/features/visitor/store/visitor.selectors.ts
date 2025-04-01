@@ -1,11 +1,19 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { VisitorState } from './visitor.reducer'; // Import your visitor reducer state type
+import { adapter, VisitorState } from './visitors.state';
 
-// Select the feature state for visitors
-export const getVisitorState = createFeatureSelector<VisitorState>('visitor');
+export const selectVisitorState = createFeatureSelector<VisitorState>('visitors');
+export const { selectAll: selectAllVisitors } = adapter.getSelectors(selectVisitorState);
 
-// Selector to get the list of visitors
-export const getVisitors = createSelector(
-  getVisitorState,
-  (state: VisitorState) => state.visitors
+export const selectLatestVisitorId = createSelector(
+  selectVisitorState,
+  (state) => state.latestVisitorId
+);
+
+export const selectLatestVisitor = createSelector(
+  selectAllVisitors,
+  selectLatestVisitorId,
+  (visitors, latestId) => {
+    const visitor = visitors.find((v) => v.id === latestId);
+    return visitor ? JSON.stringify(visitor) : null;
+  }
 );

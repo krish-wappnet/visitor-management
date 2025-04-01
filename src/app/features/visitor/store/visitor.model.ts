@@ -3,7 +3,7 @@ export interface Visitor {
     name: string;
     phone: string;
     purpose: string;
-    checkIn: string;
-    checkOut?: string; // Optional for check-out time
+    checkIn: Date;
+    checkOut?: Date; // Optional for check-out time
   }
   
