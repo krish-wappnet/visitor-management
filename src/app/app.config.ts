@@ -8,6 +8,8 @@ import { visitorReducer } from './features/visitor/store/visitor.reducer';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
+import { provideAuth } from '@angular/fire/auth';
+import { getAuth } from 'firebase/auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,5 +20,6 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideFirestore(() => getFirestore()),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
+    provideAuth(() => getAuth()),
   ],
 };

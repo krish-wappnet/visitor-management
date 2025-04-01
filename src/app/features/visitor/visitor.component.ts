@@ -5,7 +5,9 @@ import { Visitor } from './store/visitor.model';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { checkInVisitor } from './store/visitor.actions';
 import { map, tap } from 'rxjs/operators';
-import { Timestamp } from 'firebase/firestore'; // Import Timestamp type
+import { Timestamp } from 'firebase/firestore';
+import { AuthService } from '../../features/auth/store/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-visitor',
@@ -19,7 +21,12 @@ export class VisitorComponent implements OnInit {
   dateFilter: string = '';
   nameFilter: string = '';
 
-  constructor(private store: Store, private firestore: Firestore) {
+  constructor(
+    private store: Store,
+    private firestore: Firestore,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.visitors$ = (collectionData(collection(this.firestore, 'visitors'), { idField: 'id' }) as Observable<Visitor[]>).pipe(
       map(visitors => visitors.map(v => ({
         id: v.id,
@@ -74,5 +81,14 @@ export class VisitorComponent implements OnInit {
       a.click();
       window.URL.revokeObjectURL(url);
     });
+  }
+
+  async logout() {
+    try {
+      await this.authService.logout();
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   }
 }

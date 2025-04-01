@@ -1,0 +1,19 @@
+<div class="container mx-auto p-4 max-w-md">
+    <h1 class="text-3xl font-bold mb-4 text-center">Sign Up</h1>
+    <form [formGroup]="signupForm" (ngSubmit)="onSignup()" class="bg-white shadow-md rounded-lg p-6">
+      <div class="mb-4">
+        <label for="email" class="block text-gray-700">Email</label>
+        <input id="email" formControlName="email" type="email" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your email">
+      </div>
+      <div class="mb-4">
+        <label for="password" class="block text-gray-700">Password</label>
+        <input id="password" formControlName="password" type="password" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your password">
+      </div>
+      <button type="submit" [disabled]="signupForm.invalid" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-400">Sign Up</button>
+    </form>
+    <div class="mt-4 text-center">
+      <button (click)="onGoogleSignup()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Sign Up with Google</button>
+    </div>
+    <p *ngIf="errorMessage" class="text-red-500 mt-2 text-center">{{ errorMessage }}</p>
+    <p class="mt-2 text-center">Already have an account? <a routerLink="/login" class="text-blue-500 hover:underline">Login</a></p>
+  </div>
