@@ -1,0 +1,7 @@
+<div *ngFor="let visitor of visitors$ | async">
+    <p>{{ visitor.name }} - {{ visitor.purpose }}</p>
+    <button (click)="removeVisitor(visitor.id)">Remove Visitor</button>
+  </div>
+  
+  <button (click)="addVisitor()">Add Visitor</button>
+  
