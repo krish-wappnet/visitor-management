@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Firestore, collection, doc, setDoc } from '@angular/fire/firestore'; // Modern Firestore APIs
 import { checkInVisitor } from '../../../features/visitor/store/visitor.actions';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-visitor-form',
-  imports:[CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './visitor-form.component.html',
   styleUrls: ['./visitor-form.component.css'],
 })
@@ -17,7 +17,7 @@ export class VisitorFormComponent {
   constructor(
     private fb: FormBuilder,
     private store: Store,
-    private afs: AngularFirestore
+    private firestore: Firestore // Updated to modern Firestore
   ) {
     this.visitorForm = this.fb.group({
       name: ['', Validators.required],
@@ -29,15 +29,13 @@ export class VisitorFormComponent {
   onSubmit() {
     if (this.visitorForm.valid) {
       const visitor = {
-        id: this.afs.createId(),
+        id: doc(collection(this.firestore, 'visitors')).id, // Generate ID using modern API
         ...this.visitorForm.value,
         checkIn: new Date(),
       };
 
-      this.afs
-        .collection('visitors')
-        .doc(visitor.id)
-        .set(visitor)
+      const visitorDoc = doc(this.firestore, `visitors/${visitor.id}`);
+      setDoc(visitorDoc, visitor) // Modern Firestore operation
         .then(() => {
           this.store.dispatch(checkInVisitor({ visitor }));
           this.visitorForm.reset();

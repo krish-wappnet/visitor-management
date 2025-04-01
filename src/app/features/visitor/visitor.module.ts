@@ -1,20 +1,23 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FormsModule } from '@angular/forms'; // For ngModel in check-out form
+import { FormsModule } from '@angular/forms';
 import { VisitorRoutingModule } from './visitor-routing.module';
 import { VisitorCheckinComponent } from './components/visitor-checkin/visitor-checkin.component';
-import { SharedModule } from '../../shared/shared.module'; // Import SharedModule
+import { SharedModule } from '../../shared/shared.module';
+import { VisitorComponent } from './visitor.component';
 
 @NgModule({
-  declarations: [],
-  imports: [
+  declarations: [
+    VisitorComponent,
     VisitorCheckinComponent,
+  ],
+  imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule, // Add this for ngModel in the check-out form
+    FormsModule,
     VisitorRoutingModule,
-    SharedModule, // This brings in VisitorFormComponent and QrCodeGeneratorComponent
+    SharedModule,
   ],
 })
 export class VisitorModule {}
