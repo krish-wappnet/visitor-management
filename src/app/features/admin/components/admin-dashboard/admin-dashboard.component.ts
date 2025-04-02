@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 export class AdminDashboardComponent implements OnInit {
   visitors$: Observable<Visitor[]>;
   filteredVisitors$: Observable<Visitor[]>;
+  paginatedVisitors$: Observable<Visitor[]>;
   recentActivity$: Observable<Visitor[]>;
   totalVisitorsToday$: Observable<number>;
   activeVisitors$: Observable<number>;
@@ -25,6 +26,9 @@ export class AdminDashboardComponent implements OnInit {
   dateFilter: string = '';
   nameFilter: string = '';
   userEmail: string | null = null;
+  currentPage: number = 1;
+  itemsPerPage: number = 10; // Default value
+  totalPages: number = 1;
 
   constructor(
     private store: Store,
@@ -75,6 +79,8 @@ export class AdminDashboardComponent implements OnInit {
     );
 
     this.filteredVisitors$ = this.visitors$;
+    this.paginatedVisitors$ = this.getPaginatedVisitors(); // Initialize paginated data
+    this.updateTotalPages(); // Initialize total pages
 
     this.authService.user$.subscribe(user => {
       this.userEmail = user ? user.email : null;
@@ -104,6 +110,45 @@ export class AdminDashboardComponent implements OnInit {
         );
       }))
     );
+    this.currentPage = 1; // Reset to first page on filter change
+    this.paginatedVisitors$ = this.getPaginatedVisitors();
+    this.updateTotalPages();
+  }
+
+  getPaginatedVisitors(): Observable<Visitor[]> {
+    return this.filteredVisitors$.pipe(
+      map(visitors => {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        return visitors.slice(startIndex, endIndex);
+      })
+    );
+  }
+
+  updateTotalPages() {
+    this.filteredVisitors$.subscribe(visitors => {
+      this.totalPages = Math.ceil(visitors.length / this.itemsPerPage) || 1;
+    });
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.paginatedVisitors$ = this.getPaginatedVisitors();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.paginatedVisitors$ = this.getPaginatedVisitors();
+    }
+  }
+
+  updatePagination() {
+    this.currentPage = 1; // Reset to first page when items per page changes
+    this.paginatedVisitors$ = this.getPaginatedVisitors();
+    this.updateTotalPages();
   }
 
   exportData() {

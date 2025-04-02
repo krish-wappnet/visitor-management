@@ -1,8 +1,10 @@
-import { Injectable, inject, NgZone } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, user } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { Observable, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { loginSuccess, logout, loadUserFromStorage, loginFailure } from './auth.actions';
 
 @Injectable({
   providedIn: 'root',
@@ -14,21 +16,39 @@ export class AuthService {
   constructor(
     private auth: Auth,
     private firestore: Firestore,
-    private ngZone: NgZone // Inject NgZone to ensure Angular context
+    private ngZone: NgZone,
+    private store: Store<{ auth: any }> // Inline state typing
   ) {
     this.user$ = user(this.auth);
     this.userRole$ = this.user$.pipe(
       switchMap(user => {
         if (user) {
-          // Call a method to fetch the role within Angular's context
           return this.getUserRole(user.uid);
         }
         return [null];
       })
     );
+
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      this.store.dispatch(loadUserFromStorage({ user }));
+    }
+
+    this.user$.subscribe(firebaseUser => {
+      if (firebaseUser) {
+        this.getUserRole(firebaseUser.uid).subscribe(role => {
+          firebaseUser.getIdToken().then((token: any) => {
+            const user = { uid: firebaseUser.uid, email: firebaseUser.email, role, token };
+            this.store.dispatch(loginSuccess({ user }));
+          });
+        });
+      } else {
+        this.store.dispatch(logout());
+      }
+    });
   }
 
-  // Method to fetch user role within Angular's context
   private getUserRole(uid: string): Observable<string | null> {
     return this.ngZone.run(() => {
       return from(getDoc(doc(this.firestore, `users/${uid}`))).pipe(
@@ -40,9 +60,14 @@ export class AuthService {
   async loginWithEmail(email: string, password: string) {
     try {
       const credential = await signInWithEmailAndPassword(this.auth, email, password);
-      return credential.user;
-    } catch (error) {
-      console.error('Email login error:', error);
+      const user = credential.user;
+      const role = await this.getUserRole(user.uid).toPromise();
+      const token = await user.getIdToken(); // Get Firebase ID token
+      const userData = { uid: user.uid, email: user.email, role, token };
+      this.store.dispatch(loginSuccess({ user: userData }));
+      return user;
+    } catch (error: any) {
+      this.store.dispatch(loginFailure({ error: error.message }));
       throw error;
     }
   }
@@ -55,9 +80,12 @@ export class AuthService {
         email: user.email,
         role: 'visitor',
       });
+      const token = await user.getIdToken(); // Get Firebase ID token
+      const userData = { uid: user.uid, email: user.email, role: 'visitor', token };
+      this.store.dispatch(loginSuccess({ user: userData }));
       return user;
-    } catch (error) {
-      console.error('Email signup error:', error);
+    } catch (error: any) {
+      this.store.dispatch(loginFailure({ error: error.message }));
       throw error;
     }
   }
@@ -68,15 +96,20 @@ export class AuthService {
       const credential = await signInWithPopup(this.auth, provider);
       const user = credential.user;
       const userDoc = await getDoc(doc(this.firestore, `users/${user.uid}`));
+      let role = userDoc.exists() ? userDoc.data()['role'] : null;
       if (!userDoc.exists()) {
+        role = 'visitor';
         await setDoc(doc(this.firestore, `users/${user.uid}`), {
           email: user.email,
-          role: 'visitor',
+          role,
         });
       }
+      const token = await user.getIdToken(); // Get Firebase ID token
+      const userData = { uid: user.uid, email: user.email, role, token };
+      this.store.dispatch(loginSuccess({ user: userData }));
       return user;
-    } catch (error) {
-      console.error('Google login error:', error);
+    } catch (error: any) {
+      this.store.dispatch(loginFailure({ error: error.message }));
       throw error;
     }
   }
@@ -84,8 +117,9 @@ export class AuthService {
   async logout() {
     try {
       await signOut(this.auth);
-    } catch (error) {
-      console.error('Logout error:', error);
+      this.store.dispatch(logout());
+    } catch (error: any) {
+      this.store.dispatch(loginFailure({ error: error.message }));
       throw error;
     }
   }

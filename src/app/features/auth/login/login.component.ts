@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../store/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  standalone: false,
+  standalone: false, // Changed to true
+  // imports: [CommonModule, ReactiveFormsModule], // Added for standalone
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })

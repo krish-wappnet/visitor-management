@@ -12,6 +12,7 @@ import { provideAuth } from '@angular/fire/auth';
 import { getAuth } from 'firebase/auth';
 import { provideAnimations } from '@angular/platform-browser/animations'; // Import this
 import { provideToastr } from 'ngx-toastr'; // Import Toastr
+import { authReducer } from './features/auth/store/auth.reducer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,6 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideStore({ visitors: visitorReducer }),
     provideEffects(),
+    provideStore({ auth: authReducer }),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideFirestore(() => getFirestore()),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),

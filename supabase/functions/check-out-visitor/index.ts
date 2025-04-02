@@ -1,43 +1,25 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
-// Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-
-console.log("Hello from Functions!")
-
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
-  }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/check-out-visitor' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/
 import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { initializeApp, cert } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST",
   "Access-Control-Allow-Headers": "Content-Type",
 };
+
+import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
+
+console.log("Starting check-out-visitor Edge Function...");
+
+serve(async (req) => {
+  console.log("Received a request:", req.method, req.url);
+  return new Response(
+    `<html><body><h1>Success</h1><p>Edge Function is running!</p></body></html>`,
+    { status: 200, headers: { "Content-Type": "text/html" } }
+  );
+});
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -62,13 +44,29 @@ serve(async (req) => {
     );
   }
 
+  // Initialize Firebase Admin SDK
+  let db;
+  try {
+    const serviceAccount = JSON.parse(Deno.env.get("FIREBASE_SERVICE_ACCOUNT")!);
+    const firebaseApp = initializeApp({
+      credential: cert(serviceAccount),
+    });
+    db = getFirestore(firebaseApp);
+  } catch (error) {
+    console.error("Error initializing Firebase:", error);
+    return new Response(
+      `<html><body><h1>Error</h1><p>Failed to initialize Firebase</p></body></html>`,
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "text/html" } }
+    );
+  }
+
   // Initialize Supabase client
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!
   );
 
-  // Check if visitor exists
+  // Check if visitor exists in Supabase
   const { data: visitor, error: fetchError } = await supabase
     .from("visitors")
     .select("*")
@@ -76,6 +74,7 @@ serve(async (req) => {
     .single();
 
   if (fetchError || !visitor) {
+    console.error("Error fetching visitor from Supabase:", fetchError);
     return new Response(
       `<html><body><h1>Error</h1><p>Visitor not found</p></body></html>`,
       { status: 404, headers: { ...corsHeaders, "Content-Type": "text/html" } }
@@ -89,16 +88,43 @@ serve(async (req) => {
     );
   }
 
-  // Update the visitor with the check-out time
+  // Update the visitor in Supabase
+  const checkOutTime = new Date().toISOString();
   const { error: updateError } = await supabase
     .from("visitors")
-    .update({ check_out: new Date().toISOString() })
+    .update({ check_out: checkOutTime })
     .eq("id", visitorId);
 
   if (updateError) {
-    console.error("Error updating visitor:", updateError);
+    console.error("Error updating visitor in Supabase:", updateError);
     return new Response(
-      `<html><body><h1>Error</h1><p>Internal Server Error</p></body></html>`,
+      `<html><body><h1>Error</h1><p>Failed to update visitor in Supabase</p></body></html>`,
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "text/html" } }
+    );
+  }
+
+  // Update the visitor in Firebase Firestore
+  try {
+    const visitorsRef = collection(db, "visitors");
+    const q = query(visitorsRef, where("id", "==", visitorId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.error("Visitor not found in Firebase:", visitorId);
+      return new Response(
+        `<html><body><h1>Error</h1><p>Visitor not found in Firebase</p></body></html>`,
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "text/html" } }
+      );
+    }
+
+    const visitorDoc = querySnapshot.docs[0];
+    await updateDoc(visitorDoc.ref, {
+      checkOut: checkOutTime,
+    });
+  } catch (error) {
+    console.error("Error updating visitor in Firebase:", error);
+    return new Response(
+      `<html><body><h1>Error</h1><p>Failed to update visitor in Firebase</p></body></html>`,
       { status: 500, headers: { ...corsHeaders, "Content-Type": "text/html" } }
     );
   }
