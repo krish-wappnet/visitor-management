@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Firestore, collection, collectionData, query, where } from '@angular/fire/firestore';
-import { AuthService } from '../../../../features/auth/store/auth.service';
+import { AuthService } from '../../../auth/store/auth.service';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs'; // Import 'of' for initial value
-import { Visitor } from '../../store/visitor.model';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Visitor } from '../../store/visitor.model';
 import { Timestamp } from 'firebase/firestore';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-my-visits',
@@ -14,8 +15,9 @@ import { Timestamp } from 'firebase/firestore';
   styleUrls: ['./my-visits.component.scss'],
 })
 export class MyVisitsComponent implements OnInit {
-  myVisits$: Observable<Visitor[]> = of([]); // Initialize with empty observable
+  myVisits$: Observable<Visitor[]> = of([]);
   userEmail: string | null = null;
+  selectedVisitorId: string | null = null;
 
   constructor(
     private firestore: Firestore,
@@ -37,12 +39,22 @@ export class MyVisitsComponent implements OnInit {
           })))
         );
       } else {
-        this.myVisits$ = of([]); // Reset to empty if no user
+        this.myVisits$ = of([]);
       }
     });
   }
 
   ngOnInit() {}
+
+  getCheckOutUrl(visitorId: string): string {
+    const projectId = environment.firebaseConfig.projectId;
+    const region = 'us-central1'; // Replace with your Cloud Function region if different
+    return `https://qarkafhyzkcvoqodlvom.supabase.co/functions/v1/check-out-visitor`;
+  }
+
+  showQRCode(visitorId: string) {
+    this.selectedVisitorId = this.selectedVisitorId === visitorId ? null : visitorId;
+  }
 
   async logout() {
     await this.authService.logout();

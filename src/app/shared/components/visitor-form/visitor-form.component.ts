@@ -47,7 +47,7 @@ export class VisitorFormComponent {
       const visitorDoc = doc(this.firestore, `visitors/${visitor.id}`);
       try {
         await setDoc(visitorDoc, visitor);
-        this.store.dispatch(checkInVisitor({ visitor }));
+        this.store.dispatch(checkInVisitor({ visitor })); // Dispatch the action
         this.visitorForm.reset();
       } catch (error: any) {
         this.errorMessage = 'Failed to check in: ' + error.message;

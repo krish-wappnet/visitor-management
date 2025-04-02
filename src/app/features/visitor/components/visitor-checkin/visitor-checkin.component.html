@@ -11,5 +11,4 @@
   <p>Current Time: {{ currentTime | date:'medium' }}</p>
   <app-visitor-form></app-visitor-form>
   <p *ngIf="successMessage" class="text-green-500 mt-2">{{ successMessage }}</p>
-  <app-qr-code-generator [visitorData]="latestVisitorData$ | async"></app-qr-code-generator>
 </div>

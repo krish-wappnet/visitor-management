@@ -31,6 +31,7 @@ export class QrCodeScannerComponent implements OnInit {
   }
 
   onScanSuccess(result: string) {
+    console.log('Scanned QR Code:', result); // Debug log
     this.scannerEnabled = false; // Stop scanning after a successful scan
     this.checkOutVisitor(result);
   }
@@ -42,6 +43,7 @@ export class QrCodeScannerComponent implements OnInit {
       this.store.dispatch(checkOutVisitor({ id: visitorId }));
       this.toastr.success('Visitor checked out successfully!');
     } catch (error: any) {
+      console.error('Check-out failed:', error);
       this.toastr.error('Failed to check out: ' + error.message);
       this.scannerEnabled = true; // Re-enable scanner on error
     }
