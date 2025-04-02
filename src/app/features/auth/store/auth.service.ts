@@ -1,15 +1,40 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, NgZone } from '@angular/core';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, user } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
+import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
+import { Observable, from } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   user$: Observable<any>;
+  userRole$: Observable<string | null>;
 
-  constructor(private auth: Auth) {
-    this.user$ = user(this.auth); // Observable of current user
+  constructor(
+    private auth: Auth,
+    private firestore: Firestore,
+    private ngZone: NgZone // Inject NgZone to ensure Angular context
+  ) {
+    this.user$ = user(this.auth);
+    this.userRole$ = this.user$.pipe(
+      switchMap(user => {
+        if (user) {
+          // Call a method to fetch the role within Angular's context
+          return this.getUserRole(user.uid);
+        }
+        return [null];
+      })
+    );
+  }
+
+  // Method to fetch user role within Angular's context
+  private getUserRole(uid: string): Observable<string | null> {
+    return this.ngZone.run(() => {
+      return from(getDoc(doc(this.firestore, `users/${uid}`))).pipe(
+        map(userDoc => userDoc.exists() ? userDoc.data()['role'] : null)
+      );
+    });
   }
 
   async loginWithEmail(email: string, password: string) {
@@ -25,7 +50,12 @@ export class AuthService {
   async signupWithEmail(email: string, password: string) {
     try {
       const credential = await createUserWithEmailAndPassword(this.auth, email, password);
-      return credential.user;
+      const user = credential.user;
+      await setDoc(doc(this.firestore, `users/${user.uid}`), {
+        email: user.email,
+        role: 'visitor',
+      });
+      return user;
     } catch (error) {
       console.error('Email signup error:', error);
       throw error;
@@ -36,7 +66,15 @@ export class AuthService {
     try {
       const provider = new GoogleAuthProvider();
       const credential = await signInWithPopup(this.auth, provider);
-      return credential.user;
+      const user = credential.user;
+      const userDoc = await getDoc(doc(this.firestore, `users/${user.uid}`));
+      if (!userDoc.exists()) {
+        await setDoc(doc(this.firestore, `users/${user.uid}`), {
+          email: user.email,
+          role: 'visitor',
+        });
+      }
+      return user;
     } catch (error) {
       console.error('Google login error:', error);
       throw error;

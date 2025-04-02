@@ -6,11 +6,16 @@ import { VisitorRoutingModule } from './visitor-routing.module';
 import { VisitorCheckinComponent } from './components/visitor-checkin/visitor-checkin.component';
 import { SharedModule } from '../../shared/shared.module';
 import { VisitorComponent } from './visitor.component';
+import { MyVisitsComponent } from './components/my-visits/my-visits.component';
+import { QrCodeScannerComponent } from './components/qr-code-scanner/qr-code-scanner.component';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
 
 @NgModule({
   declarations: [
     VisitorComponent,
     VisitorCheckinComponent,
+    MyVisitsComponent,
+    QrCodeScannerComponent
   ],
   imports: [
     CommonModule,
@@ -18,6 +23,7 @@ import { VisitorComponent } from './visitor.component';
     FormsModule,
     VisitorRoutingModule,
     SharedModule,
+    ZXingScannerModule
   ],
 })
 export class VisitorModule {}

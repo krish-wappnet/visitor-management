@@ -10,6 +10,8 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 import { provideAuth } from '@angular/fire/auth';
 import { getAuth } from 'firebase/auth';
+import { provideAnimations } from '@angular/platform-browser/animations'; // Import this
+import { provideToastr } from 'ngx-toastr'; // Import Toastr
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,5 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideFirestore(() => getFirestore()),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     provideAuth(() => getAuth()),
+    provideAnimations(), // Add this to enable animations
+    provideToastr(), // Configure Toastr
   ],
 };

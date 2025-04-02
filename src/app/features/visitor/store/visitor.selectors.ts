@@ -14,6 +14,6 @@ export const selectLatestVisitor = createSelector(
   selectLatestVisitorId,
   (visitors, latestId) => {
     const visitor = visitors.find((v) => v.id === latestId);
-    return visitor ? JSON.stringify(visitor) : null;
+    return visitor || null; // Return Visitor | null
   }
 );

@@ -7,6 +7,7 @@ export interface Visitor {
   purpose: string;
   checkIn: Date;
   checkOut?: Date;
+  email?: string; // Add email field
 }
 
 export interface VisitorState extends EntityState<Visitor> {

@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { Visitor } from './store/visitor.model';
+import { Visitor } from '../../../visitor/store/visitor.model';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
-import { checkInVisitor } from './store/visitor.actions';
+import { checkInVisitor } from '../../../visitor/store/visitor.actions';
 import { map, tap } from 'rxjs/operators';
 import { Timestamp } from 'firebase/firestore';
-import { AuthService } from '../auth/store/auth.service';
+import { AuthService } from '../../../auth/store/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-visitor',
-  standalone: false,
-  templateUrl: './visitor.component.html',
-  styleUrls: ['./visitor.component.scss'],
+  selector: 'app-admin-dashboard',
+  standalone:false,
+  templateUrl: './admin-dashboard.component.html',
+  styleUrls: ['./admin-dashboard.component.scss'],
 })
-export class VisitorComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit {
   visitors$: Observable<Visitor[]>;
   filteredVisitors$: Observable<Visitor[]>;
   recentActivity$: Observable<Visitor[]>;
@@ -44,7 +44,6 @@ export class VisitorComponent implements OnInit {
       tap(visitors => visitors.forEach(v => this.store.dispatch(checkInVisitor({ visitor: v }))))
     );
 
-    // Stats
     this.totalVisitorsToday$ = this.visitors$.pipe(
       map(visitors => {
         const today = new Date();
@@ -64,7 +63,6 @@ export class VisitorComponent implements OnInit {
       map(visitors => visitors.length)
     );
 
-    // Recent Activity (last 5 check-ins/check-outs)
     this.recentActivity$ = this.visitors$.pipe(
       map(visitors => {
         const sorted = [...visitors].sort((a, b) => {
@@ -78,7 +76,6 @@ export class VisitorComponent implements OnInit {
 
     this.filteredVisitors$ = this.visitors$;
 
-    // User email
     this.authService.user$.subscribe(user => {
       this.userEmail = user ? user.email : null;
     });

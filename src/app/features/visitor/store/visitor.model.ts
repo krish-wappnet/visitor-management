@@ -5,5 +5,6 @@ export interface Visitor {
     purpose: string;
     checkIn: Date;
     checkOut?: Date; // Optional for check-out time
+    email?: string;
   }
   

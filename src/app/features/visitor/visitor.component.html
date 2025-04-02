@@ -1,31 +1,75 @@
 <div class="container mx-auto p-4">
-  <div class="flex justify-between items-center mb-4">
-    <h1 class="text-3xl font-bold">Visitor Logs</h1>
-    <button (click)="logout()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Logout</button>
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Visitor Dashboard</h1>
+    <div class="flex items-center gap-4">
+      <span *ngIf="userEmail" class="text-gray-700">Logged in as: {{ userEmail }}</span>
+      <button (click)="logout()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Logout</button>
+    </div>
   </div>
-  <div class="mb-4 flex gap-4">
-    <input type="date" (change)="filterByDate($event)" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-    <input type="text" (input)="filterByName($event)" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Filter by name">
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+      <h2 class="text-xl font-semibold text-gray-700">Visitors Today</h2>
+      <p class="text-3xl font-bold text-blue-500 mt-2">{{ totalVisitorsToday$ | async }}</p>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+      <h2 class="text-xl font-semibold text-gray-700">Active Visitors</h2>
+      <p class="text-3xl font-bold text-green-500 mt-2">{{ activeVisitors$ | async }}</p>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+      <h2 class="text-xl font-semibold text-gray-700">Total Visitors</h2>
+      <p class="text-3xl font-bold text-purple-500 mt-2">{{ totalVisitorsAllTime$ | async }}</p>
+    </div>
   </div>
-  <table class="w-full border-collapse bg-white shadow-md rounded-lg">
-    <thead>
-      <tr class="bg-gray-200">
-        <th class="p-2 text-left">Name</th>
-        <th class="p-2 text-left">Phone</th>
-        <th class="p-2 text-left">Purpose</th>
-        <th class="p-2 text-left">Check-In</th>
-        <th class="p-2 text-left">Check-Out</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let visitor of filteredVisitors$ | async" class="border-b hover:bg-gray-100">
-        <td class="p-2">{{ visitor.name }}</td>
-        <td class="p-2">{{ visitor.phone }}</td>
-        <td class="p-2">{{ visitor.purpose }}</td>
-        <td class="p-2">{{ visitor.checkIn | date:'medium' }}</td>
-        <td class="p-2">{{ visitor.checkOut ? (visitor.checkOut | date:'medium') : 'Active' }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <button (click)="exportData()" class="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Export CSV</button>
+
+  <!-- Quick Actions -->
+  <div class="mb-6">
+    <button (click)="goToCheckIn()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Check In New Visitor</button>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="mb-6">
+    <h2 class="text-2xl font-semibold mb-4">Recent Activity</h2>
+    <div class="bg-white shadow-md rounded-lg p-4">
+      <ul>
+        <li *ngFor="let activity of recentActivity$ | async" class="border-b py-2">
+          <span class="font-medium">{{ activity.name }}</span>
+          <span class="text-gray-600"> - {{ activity.checkOut ? 'Checked Out' : 'Checked In' }}</span>
+          <span class="text-gray-500 text-sm"> at {{ (activity.checkOut || activity.checkIn) | date:'medium' }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Visitor Logs -->
+  <div>
+    <h2 class="text-2xl font-semibold mb-4">Visitor Logs</h2>
+    <div class="mb-4 flex gap-4">
+      <input type="date" (change)="filterByDate($event)" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="text" (input)="filterByName($event)" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Filter by name">
+    </div>
+    <table class="w-full border-collapse bg-white shadow-md rounded-lg">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="p-2 text-left">Name</th>
+          <th class="p-2 text-left">Phone</th>
+          <th class="p-2 text-left">Purpose</th>
+          <th class="p-2 text-left">Check-In</th>
+          <th class="p-2 text-left">Check-Out</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let visitor of filteredVisitors$ | async" class="border-b hover:bg-gray-100">
+          <td class="p-2">{{ visitor.name }}</td>
+          <td class="p-2">{{ visitor.phone }}</td>
+          <td class="p-2">{{ visitor.purpose }}</td>
+          <td class="p-2">{{ visitor.checkIn | date:'medium' }}</td>
+          <td class="p-2">{{ visitor.checkOut ? (visitor.checkOut | date:'medium') : 'Active' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <button (click)="exportData()" class="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Export CSV</button>
+  </div>
 </div>

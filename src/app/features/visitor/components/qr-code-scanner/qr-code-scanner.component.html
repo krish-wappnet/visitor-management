@@ -1,0 +1,13 @@
+<div class="p-4">
+    <h3 class="text-lg font-semibold mb-2">Scan QR Code to Check Out</h3>
+    <zxing-scanner
+      *ngIf="scannerEnabled"
+      [enable]="scannerEnabled"
+      [device]="deviceCurrent"
+      (scanSuccess)="onScanSuccess($event)"
+      (camerasFound)="deviceList = $event; deviceCurrent = $event[0]"
+    ></zxing-scanner>
+    <button *ngIf="!scannerEnabled" (click)="enableScanner()" class="mt-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+      Scan Again
+    </button>
+  </div>

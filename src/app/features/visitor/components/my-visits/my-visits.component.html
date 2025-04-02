@@ -1,0 +1,30 @@
+<div class="container mx-auto p-4">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">My Visits</h1>
+      <div class="flex items-center gap-4">
+        <span *ngIf="userEmail" class="text-gray-700">Logged in as: {{ userEmail }}</span>
+        <button (click)="logout()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Logout</button>
+      </div>
+    </div>
+    <table class="w-full border-collapse bg-white shadow-md rounded-lg">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="p-2 text-left">Name</th>
+          <th class="p-2 text-left">Phone</th>
+          <th class="p-2 text-left">Purpose</th>
+          <th class="p-2 text-left">Check-In</th>
+          <th class="p-2 text-left">Check-Out</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let visit of myVisits$ | async" class="border-b hover:bg-gray-100">
+          <td class="p-2">{{ visit.name }}</td>
+          <td class="p-2">{{ visit.phone }}</td>
+          <td class="p-2">{{ visit.purpose }}</td>
+          <td class="p-2">{{ visit.checkIn | date:'medium' }}</td>
+          <td class="p-2">{{ visit.checkOut ? (visit.checkOut | date:'medium') : 'Active' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <button (click)="goToCheckIn()" class="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Book a Visit</button>
+  </div>

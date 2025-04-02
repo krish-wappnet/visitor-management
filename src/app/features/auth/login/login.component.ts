@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { AuthService } from '../store/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,11 @@ export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -26,7 +31,8 @@ export class LoginComponent {
       try {
         const { email, password } = this.loginForm.value;
         await this.authService.loginWithEmail(email, password);
-        this.router.navigate(['/visitor']);
+        const role = await firstValueFrom(this.authService.userRole$);
+        this.router.navigate([role === 'admin' ? '/admin/dashboard' : '/visitor/my-visits']);
       } catch (error: any) {
         this.errorMessage = error.message;
       }
@@ -36,7 +42,8 @@ export class LoginComponent {
   async onGoogleLogin() {
     try {
       await this.authService.loginWithGoogle();
-      this.router.navigate(['/visitor']);
+      const role = await firstValueFrom(this.authService.userRole$);
+      this.router.navigate([role === 'admin' ? '/admin/dashboard' : '/visitor/my-visits']);
     } catch (error: any) {
       this.errorMessage = error.message;
     }
