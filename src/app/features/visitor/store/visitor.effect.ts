@@ -1,3 +1,4 @@
+// src/app/features/visitor/store/visitor.effects.ts
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { VisitorService } from './visitor.service';

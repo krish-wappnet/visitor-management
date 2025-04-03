@@ -36,15 +36,19 @@ export class AdminDashboardComponent implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {
-    this.visitors$ = (collectionData(collection(this.firestore, 'visitors'), { idField: 'id' }) as Observable<Visitor[]>).pipe(
+    this.visitors$ = (collectionData(collection(this.firestore, 'visitors'), { idField: 'id' }) as Observable<any[]>).pipe(
       map(visitors => visitors.map(v => ({
         id: v.id,
         name: v.name,
         phone: v.phone,
         purpose: v.purpose,
         checkIn: v.checkIn instanceof Timestamp ? v.checkIn.toDate() : new Date(v.checkIn),
-        checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined
-      }))),
+        stayDuration: v.stayDuration || 0, // Default if missing
+        checkOutTime: v.checkOutTime ? (v.checkOutTime instanceof Timestamp ? v.checkOutTime.toDate() : new Date(v.checkOutTime)) : undefined,
+        checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined,
+        email: v.email,
+        isCheckedIn: v.isCheckedIn !== undefined ? v.isCheckedIn : !v.checkOut, // Infer if missing
+      } as Visitor))),
       tap(visitors => visitors.forEach(v => this.store.dispatch(checkInVisitor({ visitor: v }))))
     );
 

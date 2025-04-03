@@ -1,14 +1,6 @@
+// src/app/features/visitor/store/visitors.state.ts
 import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
-
-export interface Visitor {
-  id: string;
-  name: string;
-  phone: string;
-  purpose: string;
-  checkIn: Date;
-  checkOut?: Date;
-  email?: string; // Add email field
-}
+import { Visitor } from './visitor.model'; // Import from visitor.model.ts
 
 export interface VisitorState extends EntityState<Visitor> {
   latestVisitorId: string | null;

@@ -1,4 +1,4 @@
-// visitor.reducer.ts
+// src/app/features/visitor/store/visitor.reducer.ts
 import { createReducer, on } from '@ngrx/store';
 import { adapter, initialState, VisitorState } from './visitors.state';
 import { checkInVisitor, checkOutVisitor } from './visitor.actions';
@@ -13,7 +13,13 @@ export const visitorReducer = createReducer(
   }),
   on(checkOutVisitor, (state: VisitorState, { id }) => {
     return adapter.updateOne(
-      { id, changes: { checkOut: new Date() } },
+      { 
+        id, 
+        changes: { 
+          checkOut: new Date(), 
+          isCheckedIn: false // Update isCheckedIn to reflect checkout
+        } 
+      },
       { ...state }
     );
   })

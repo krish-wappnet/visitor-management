@@ -36,12 +36,19 @@ export class MyVisitsComponent implements OnInit {
           collection(this.firestore, 'visitors'),
           where('email', '==', user.email)
         );
-        this.myVisits$ = (collectionData(visitsQuery, { idField: 'id' }) as Observable<Visitor[]>).pipe(
+        this.myVisits$ = (collectionData(visitsQuery, { idField: 'id' }) as Observable<any[]>).pipe(
           map(visits => visits.map(v => ({
-            ...v,
+            id: v.id,
+            name: v.name,
+            phone: v.phone,
+            purpose: v.purpose,
             checkIn: v.checkIn instanceof Timestamp ? v.checkIn.toDate() : new Date(v.checkIn),
-            checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined
-          })))
+            stayDuration: v.stayDuration || 0, // Include stayDuration
+            checkOutTime: v.checkOutTime ? (v.checkOutTime instanceof Timestamp ? v.checkOutTime.toDate() : new Date(v.checkOutTime)) : undefined, // Include checkOutTime
+            checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined,
+            email: v.email,
+            isCheckedIn: v.isCheckedIn !== undefined ? v.isCheckedIn : !v.checkOut, // Include isCheckedIn
+          } as Visitor)))
         );
         this.myVisits$.subscribe(visits => {
           this.allVisits = visits;

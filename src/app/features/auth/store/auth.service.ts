@@ -103,6 +103,7 @@ export class AuthService {
           email: user.email,
           role,
         });
+      
       }
       const token = await user.getIdToken(); // Get Firebase ID token
       const userData = { uid: user.uid, email: user.email, role, token };

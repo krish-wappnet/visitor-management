@@ -32,15 +32,19 @@ export class VisitorComponent implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {
-    this.visitors$ = (collectionData(collection(this.firestore, 'visitors'), { idField: 'id' }) as Observable<Visitor[]>).pipe(
+    this.visitors$ = (collectionData(collection(this.firestore, 'visitors'), { idField: 'id' }) as Observable<any[]>).pipe(
       map(visitors => visitors.map(v => ({
         id: v.id,
         name: v.name,
         phone: v.phone,
         purpose: v.purpose,
         checkIn: v.checkIn instanceof Timestamp ? v.checkIn.toDate() : new Date(v.checkIn),
-        checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined
-      }))),
+        stayDuration: v.stayDuration || 0, // Default to 0 if not present (adjust as needed)
+        checkOutTime: v.checkOutTime ? (v.checkOutTime instanceof Timestamp ? v.checkOutTime.toDate() : new Date(v.checkOutTime)) : undefined,
+        checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined,
+        email: v.email,
+        isCheckedIn: v.isCheckedIn !== undefined ? v.isCheckedIn : !v.checkOut, // Infer from checkOut if missing
+      } as Visitor))),
       tap(visitors => visitors.forEach(v => this.store.dispatch(checkInVisitor({ visitor: v }))))
     );
 
@@ -57,7 +61,7 @@ export class VisitorComponent implements OnInit {
     );
 
     this.activeVisitors$ = this.visitors$.pipe(
-      map(visitors => visitors.filter(v => !v.checkOut).length)
+      map(visitors => visitors.filter(v => v.isCheckedIn).length) // Updated to use isCheckedIn
     );
 
     this.totalVisitorsAllTime$ = this.visitors$.pipe(
@@ -111,9 +115,9 @@ export class VisitorComponent implements OnInit {
 
   exportData() {
     this.visitors$.subscribe(visitors => {
-      const csvHeader = 'Name,Phone,Purpose,Check-In,Check-Out';
+      const csvHeader = 'Name,Phone,Purpose,Check-In,Check-Out,Stay Duration,Checked In';
       const csvRows = visitors.map(v =>
-        `${v.name},${v.phone},${v.purpose},${new Date(v.checkIn).toISOString()},${v.checkOut ? new Date(v.checkOut).toISOString() : ''}`
+        `${v.name},${v.phone},${v.purpose},${new Date(v.checkIn).toISOString()},${v.checkOut ? new Date(v.checkOut).toISOString() : ''},${v.stayDuration},${v.isCheckedIn}`
       );
       const csv = [csvHeader, ...csvRows].join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });

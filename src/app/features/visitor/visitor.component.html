@@ -36,9 +36,12 @@
       <ul>
         <li *ngFor="let activity of recentActivity$ | async" class="border-b py-2">
           <span class="font-medium">{{ activity.name }}</span>
-          <span class="text-gray-600"> - {{ activity.checkOut ? 'Checked Out' : 'Checked In' }}</span>
+          <span class="text-gray-600"> - {{ activity.isCheckedIn ? 'Checked In' : 'Checked Out' }}</span>
           <span class="text-gray-500 text-sm"> at {{ (activity.checkOut || activity.checkIn) | date:'medium' }}</span>
+          <span class="text-gray-500 text-sm"> (Duration: {{ activity.stayDuration }}h)</span>
+          <span *ngIf="activity.checkOutTime && activity.isCheckedIn" class="text-gray-500 text-sm"> - Expected Checkout: {{ activity.checkOutTime | date:'medium' }}</span>
         </li>
+        <li *ngIf="(recentActivity$ | async)?.length === 0" class="text-gray-500 py-2">No recent activity.</li>
       </ul>
     </div>
   </div>
@@ -56,8 +59,11 @@
           <th class="p-2 text-left">Name</th>
           <th class="p-2 text-left">Phone</th>
           <th class="p-2 text-left">Purpose</th>
+          <th class="p-2 text-left">Duration</th>
           <th class="p-2 text-left">Check-In</th>
           <th class="p-2 text-left">Check-Out</th>
+          <th class="p-2 text-left">Expected Checkout</th>
+          <th class="p-2 text-left">Status</th>
         </tr>
       </thead>
       <tbody>
@@ -65,8 +71,14 @@
           <td class="p-2">{{ visitor.name }}</td>
           <td class="p-2">{{ visitor.phone }}</td>
           <td class="p-2">{{ visitor.purpose }}</td>
+          <td class="p-2">{{ visitor.stayDuration }}h</td>
           <td class="p-2">{{ visitor.checkIn | date:'medium' }}</td>
-          <td class="p-2">{{ visitor.checkOut ? (visitor.checkOut | date:'medium') : 'Active' }}</td>
+          <td class="p-2">{{ visitor.checkOut ? (visitor.checkOut | date:'medium') : 'N/A' }}</td>
+          <td class="p-2">{{ visitor.checkOutTime ? (visitor.checkOutTime | date:'medium') : 'N/A' }}</td>
+          <td class="p-2">{{ visitor.isCheckedIn ? 'Active' : 'Checked Out' }}</td>
+        </tr>
+        <tr *ngIf="(filteredVisitors$ | async)?.length === 0" class="text-gray-500">
+          <td colspan="8" class="p-2 text-center">No visitors found.</td>
         </tr>
       </tbody>
     </table>
