@@ -1,58 +1,64 @@
+// admin-users.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Firestore, collection, collectionData, doc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, doc, updateDoc } from '@angular/fire/firestore'; // Modern API
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AuthService } from '../../../../features/auth/store/auth.service';
+import { AuthService } from '../../../auth/store/auth.service';
 import { Router } from '@angular/router';
-
-interface User {
-  id: string;
-  email: string;
-  role: string;
-}
 
 @Component({
   selector: 'app-admin-users',
-  standalone:false,
+  standalone: false,
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss'],
 })
 export class AdminUsersComponent implements OnInit {
-  users$: Observable<User[]>;
+  users$: Observable<any[]>;
   userEmail: string | null = null;
 
   constructor(
-    private firestore: Firestore,
+    private firestore: Firestore, // Use modern Firestore
     private authService: AuthService,
     private router: Router
   ) {
-    this.users$ = (collectionData(collection(this.firestore, 'users'), { idField: 'id' }) as Observable<User[]>).pipe(
-      map(users => users.map(user => ({
-        id: user.id,
-        email: user.email,
-        role: user.role
-      })))
+    // Fetch users using collectionData
+    this.users$ = (collectionData(collection(this.firestore, 'users'), { idField: 'id' }) as Observable<any[]>).pipe(
+      map(users => users.map(user => ({ id: user.id, ...user })))
+      
     );
 
     this.authService.user$.subscribe(user => {
       this.userEmail = user ? user.email : null;
+      console.log('Current user:', user);
     });
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
-  async toggleRole(user: User) {
-    const newRole = user.role === 'admin' ? 'visitor' : 'admin';
-    const userDoc = doc(this.firestore, `users/${user.id}`);
-    try {
-      await updateDoc(userDoc, { role: newRole });
-    } catch (error) {
-      console.error('Error updating role:', error);
-    }
+  approveUser(uid: string) {
+    const userRef = doc(this.firestore, `users/${uid}`);
+    updateDoc(userRef, { status: 'approved' })
+      .then(() => console.log(`User ${uid} approved`))
+      .catch((error) => console.error('Error approving user:', error));
+  }
+
+  rejectUser(uid: string) {
+    const userRef = doc(this.firestore, `users/${uid}`);
+    updateDoc(userRef, { status: 'rejected' })
+      .then(() => console.log(`User ${uid} rejected`))
+      .catch((error) => console.error('Error rejecting user:', error));
   }
 
   async logout() {
-    await this.authService.logout();
-    this.router.navigate(['/login']);
+    try {
+      await this.authService.logout();
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/admin/dashboard']);
   }
 }

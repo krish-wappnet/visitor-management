@@ -1,3 +1,4 @@
+<!-- admin-dashboard.component.html -->
 <div class="min-h-screen bg-gray-50">
   <!-- Fixed Navbar -->
   <nav class="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
@@ -6,6 +7,12 @@
         Admin Dashboard
       </h1>
       <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <button
+          (click)="goToUsers()"
+          class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-sm"
+        >
+          Manage Users
+        </button>
         <span *ngIf="userEmail" class="text-gray-600 text-sm font-medium">
           Logged in as: <span class="text-gray-800">{{ userEmail }}</span>
         </span>
@@ -19,7 +26,7 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
+  <!-- Main Content (unchanged) -->
   <div class="container mx-auto max-w-full pt-24 pb-6 px-6">
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

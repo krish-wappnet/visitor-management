@@ -1,3 +1,4 @@
+// auth.effects.ts
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { tap } from 'rxjs/operators';
@@ -11,7 +12,7 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(loginSuccess),
-        tap(({ user }) => localStorage.setItem('authUser', JSON.stringify(user))) // Stores uid, email, role, token
+        tap(({ user }) => localStorage.setItem('authUser', JSON.stringify(user))) // Stores uid, email, role, status, token
       ),
     { dispatch: false }
   );

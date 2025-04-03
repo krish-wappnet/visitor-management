@@ -1,3 +1,4 @@
+// admin-dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -11,7 +12,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
-  standalone:false,
+  standalone: false,
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
 })
@@ -27,7 +28,7 @@ export class AdminDashboardComponent implements OnInit {
   nameFilter: string = '';
   userEmail: string | null = null;
   currentPage: number = 1;
-  itemsPerPage: number = 10; // Default value
+  itemsPerPage: number = 10;
   totalPages: number = 1;
 
   constructor(
@@ -43,11 +44,11 @@ export class AdminDashboardComponent implements OnInit {
         phone: v.phone,
         purpose: v.purpose,
         checkIn: v.checkIn instanceof Timestamp ? v.checkIn.toDate() : new Date(v.checkIn),
-        stayDuration: v.stayDuration || 0, // Default if missing
+        stayDuration: v.stayDuration || 0,
         checkOutTime: v.checkOutTime ? (v.checkOutTime instanceof Timestamp ? v.checkOutTime.toDate() : new Date(v.checkOutTime)) : undefined,
         checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined,
         email: v.email,
-        isCheckedIn: v.isCheckedIn !== undefined ? v.isCheckedIn : !v.checkOut, // Infer if missing
+        isCheckedIn: v.isCheckedIn !== undefined ? v.isCheckedIn : !v.checkOut,
       } as Visitor))),
       tap(visitors => visitors.forEach(v => this.store.dispatch(checkInVisitor({ visitor: v }))))
     );
@@ -83,8 +84,8 @@ export class AdminDashboardComponent implements OnInit {
     );
 
     this.filteredVisitors$ = this.visitors$;
-    this.paginatedVisitors$ = this.getPaginatedVisitors(); // Initialize paginated data
-    this.updateTotalPages(); // Initialize total pages
+    this.paginatedVisitors$ = this.getPaginatedVisitors();
+    this.updateTotalPages();
 
     this.authService.user$.subscribe(user => {
       this.userEmail = user ? user.email : null;
@@ -114,7 +115,7 @@ export class AdminDashboardComponent implements OnInit {
         );
       }))
     );
-    this.currentPage = 1; // Reset to first page on filter change
+    this.currentPage = 1;
     this.paginatedVisitors$ = this.getPaginatedVisitors();
     this.updateTotalPages();
   }
@@ -150,7 +151,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   updatePagination() {
-    this.currentPage = 1; // Reset to first page when items per page changes
+    this.currentPage = 1;
     this.paginatedVisitors$ = this.getPaginatedVisitors();
     this.updateTotalPages();
   }
@@ -183,5 +184,9 @@ export class AdminDashboardComponent implements OnInit {
 
   goToCheckIn() {
     this.router.navigate(['/visitor/checkin']);
+  }
+
+  goToUsers() {
+    this.router.navigate(['/admin/users']);
   }
 }

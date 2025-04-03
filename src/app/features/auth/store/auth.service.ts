@@ -1,3 +1,4 @@
+// auth.service.ts
 import { Injectable, NgZone } from '@angular/core';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, user } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
@@ -17,11 +18,11 @@ export class AuthService {
     private auth: Auth,
     private firestore: Firestore,
     private ngZone: NgZone,
-    private store: Store<{ auth: any }> // Inline state typing
+    private store: Store<{ auth: any }>
   ) {
     this.user$ = user(this.auth);
     this.userRole$ = this.user$.pipe(
-      switchMap(user => {
+      switchMap((user) => {
         if (user) {
           return this.getUserRole(user.uid);
         }
@@ -35,11 +36,11 @@ export class AuthService {
       this.store.dispatch(loadUserFromStorage({ user }));
     }
 
-    this.user$.subscribe(firebaseUser => {
+    this.user$.subscribe((firebaseUser) => {
       if (firebaseUser) {
-        this.getUserRole(firebaseUser.uid).subscribe(role => {
+        this.getUserData(firebaseUser.uid).subscribe((userData) => {
           firebaseUser.getIdToken().then((token: any) => {
-            const user = { uid: firebaseUser.uid, email: firebaseUser.email, role, token };
+            const user = { uid: firebaseUser.uid, email: firebaseUser.email, role: userData?.role, status: userData?.status, token };
             this.store.dispatch(loginSuccess({ user }));
           });
         });
@@ -52,7 +53,15 @@ export class AuthService {
   private getUserRole(uid: string): Observable<string | null> {
     return this.ngZone.run(() => {
       return from(getDoc(doc(this.firestore, `users/${uid}`))).pipe(
-        map(userDoc => userDoc.exists() ? userDoc.data()['role'] : null)
+        map((userDoc) => (userDoc.exists() ? userDoc.data()['role'] : null))
+      );
+    });
+  }
+
+  private getUserData(uid: string): Observable<any> {
+    return this.ngZone.run(() => {
+      return from(getDoc(doc(this.firestore, `users/${uid}`))).pipe(
+        map((userDoc) => (userDoc.exists() ? userDoc.data() : null))
       );
     });
   }
@@ -61,10 +70,10 @@ export class AuthService {
     try {
       const credential = await signInWithEmailAndPassword(this.auth, email, password);
       const user = credential.user;
-      const role = await this.getUserRole(user.uid).toPromise();
-      const token = await user.getIdToken(); // Get Firebase ID token
-      const userData = { uid: user.uid, email: user.email, role, token };
-      this.store.dispatch(loginSuccess({ user: userData }));
+      const userData = (await getDoc(doc(this.firestore, `users/${user.uid}`))).data();
+      const token = await user.getIdToken();
+      const authData = { uid: user.uid, email: user.email, role: userData?.['role'], status: userData?.['status'], token };
+      this.store.dispatch(loginSuccess({ user: authData }));
       return user;
     } catch (error: any) {
       this.store.dispatch(loginFailure({ error: error.message }));
@@ -79,9 +88,11 @@ export class AuthService {
       await setDoc(doc(this.firestore, `users/${user.uid}`), {
         email: user.email,
         role: 'visitor',
+        status: 'pending', // Set status to "pending" for new users
+        createdAt: new Date(),
       });
-      const token = await user.getIdToken(); // Get Firebase ID token
-      const userData = { uid: user.uid, email: user.email, role: 'visitor', token };
+      const token = await user.getIdToken();
+      const userData = { uid: user.uid, email: user.email, role: 'visitor', status: 'pending', token };
       this.store.dispatch(loginSuccess({ user: userData }));
       return user;
     } catch (error: any) {
@@ -97,16 +108,21 @@ export class AuthService {
       const user = credential.user;
       const userDoc = await getDoc(doc(this.firestore, `users/${user.uid}`));
       let role = userDoc.exists() ? userDoc.data()['role'] : null;
+      let status = userDoc.exists() ? userDoc.data()['status'] : null;
+
       if (!userDoc.exists()) {
         role = 'visitor';
+        status = 'pending'; // Set status to "pending" for new Google users
         await setDoc(doc(this.firestore, `users/${user.uid}`), {
           email: user.email,
           role,
+          status,
+          createdAt: new Date(),
         });
-      
       }
-      const token = await user.getIdToken(); // Get Firebase ID token
-      const userData = { uid: user.uid, email: user.email, role, token };
+
+      const token = await user.getIdToken();
+      const userData = { uid: user.uid, email: user.email, role, status, token };
       this.store.dispatch(loginSuccess({ user: userData }));
       return user;
     } catch (error: any) {
