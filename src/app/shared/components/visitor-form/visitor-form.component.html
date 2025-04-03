@@ -25,7 +25,7 @@
   </nav>
 
   <div class="container mx-auto max-w-full pt-24 pb-6 px-6 flex justify-center">
-    <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full transform hover:shadow-3xl transition-all duration-300">
+    <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-lg w-full transform hover:shadow-3xl transition-all duration-300">
       <div class="mb-6 text-center">
         <label class="block text-sm font-medium text-gray-700 mb-2">Current Time</label>
         <div class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-3 rounded-lg font-semibold text-lg shadow-md">
@@ -33,81 +33,117 @@
         </div>
       </div>
 
-      <form [formGroup]="visitorForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <div class="relative">
-          <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-          <input
-            id="name"
-            formControlName="name"
-            type="text"
-            class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-            placeholder="Enter your name"
-            [class.border-red-500]="visitorForm.get('name')?.touched && visitorForm.get('name')?.invalid"
-          />
-          <div *ngIf="visitorForm.get('name')?.touched && visitorForm.get('name')?.invalid" class="text-red-600 text-xs mt-1">
-            <p *ngIf="visitorForm.get('name')?.errors?.['required']">Name is required.</p>
+      <form [formGroup]="visitorForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Step 1: Visitor Details -->
+        <div *ngIf="currentStep === 1" class="col-span-2 space-y-6">
+          <h2 class="text-xl font-semibold text-gray-800 text-center">Visitor Details</h2>
+          <div class="relative">
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <input
+              id="name"
+              formControlName="name"
+              type="text"
+              class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+              placeholder="Enter your name"
+              [class.border-red-500]="visitorForm.get('name')?.touched && visitorForm.get('name')?.invalid"
+            />
+            <div *ngIf="visitorForm.get('name')?.touched && visitorForm.get('name')?.invalid" class="text-red-600 text-xs mt-1">
+              <p *ngIf="visitorForm.get('name')?.errors?.['required']">Name is required.</p>
+            </div>
           </div>
-        </div>
 
-        <div class="relative">
-          <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-          <input
-            id="phone"
-            formControlName="phone"
-            type="text"
-            class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-            placeholder="Enter 10-digit phone number (e.g., 1234567890)"
-            [class.border-red-500]="visitorForm.get('phone')?.touched && visitorForm.get('phone')?.invalid"
-          />
-          <div *ngIf="visitorForm.get('phone')?.touched && visitorForm.get('phone')?.invalid" class="text-red-600 text-xs mt-1">
-            <p *ngIf="visitorForm.get('phone')?.errors?.['required']">Phone number is required.</p>
-            <p *ngIf="visitorForm.get('phone')?.errors?.['pattern']">Please enter a valid 10-digit phone number.</p>
+          <div class="relative">
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+            <input
+              id="phone"
+              formControlName="phone"
+              type="text"
+              class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+              placeholder="Enter 10-digit phone number"
+              [class.border-red-500]="visitorForm.get('phone')?.touched && visitorForm.get('phone')?.invalid"
+            />
+            <div *ngIf="visitorForm.get('phone')?.touched && visitorForm.get('phone')?.invalid" class="text-red-600 text-xs mt-1">
+              <p *ngIf="visitorForm.get('phone')?.errors?.['required']">Phone number is required.</p>
+              <p *ngIf="visitorForm.get('phone')?.errors?.['pattern']">Enter a valid 10-digit number.</p>
+            </div>
           </div>
-        </div>
 
-        <div class="relative">
-          <label for="purpose" class="block text-sm font-medium text-gray-700 mb-2">Purpose of Visit</label>
-          <input
-            id="purpose"
-            formControlName="purpose"
-            type="text"
-            class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-            placeholder="Enter purpose of visit"
-            [class.border-red-500]="visitorForm.get('purpose')?.touched && visitorForm.get('purpose')?.invalid"
-          />
-          <div *ngIf="visitorForm.get('purpose')?.touched && visitorForm.get('purpose')?.invalid" class="text-red-600 text-xs mt-1">
-            <p *ngIf="visitorForm.get('purpose')?.errors?.['required']">Purpose is required.</p>
+          <div class="relative">
+            <label for="purpose" class="block text-sm font-medium text-gray-700 mb-2">Purpose of Visit</label>
+            <input
+              id="purpose"
+              formControlName="purpose"
+              type="text"
+              class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+              placeholder="Enter purpose of visit"
+              [class.border-red-500]="visitorForm.get('purpose')?.touched && visitorForm.get('purpose')?.invalid"
+            />
+            <div *ngIf="visitorForm.get('purpose')?.touched && visitorForm.get('purpose')?.invalid" class="text-red-600 text-xs mt-1">
+              <p *ngIf="visitorForm.get('purpose')?.errors?.['required']">Purpose is required.</p>
+            </div>
           </div>
-        </div>
 
-        <div class="relative">
-          <label for="stayDuration" class="block text-sm font-medium text-gray-700 mb-2">Stay Duration</label>
-          <select
-            id="stayDuration"
-            formControlName="stayDuration"
-            class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            [class.border-red-500]="visitorForm.get('stayDuration')?.touched && visitorForm.get('stayDuration')?.invalid"
+          <button
+            (click)="nextStep()"
+            [disabled]="!visitorForm.controls['name'].valid || !visitorForm.controls['phone'].valid || !visitorForm.controls['purpose'].valid"
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300"
           >
-            <option *ngFor="let duration of durationOptions" [value]="duration">
-              {{ duration }} Hour{{ duration > 1 ? 's' : '' }}
-            </option>
-          </select>
-          <div *ngIf="visitorForm.get('stayDuration')?.touched && visitorForm.get('stayDuration')?.invalid" class="text-red-600 text-xs mt-1">
-            <p *ngIf="visitorForm.get('stayDuration')?.errors?.['required']">Stay duration is required.</p>
+            Next
+          </button>
+        </div>
+
+        <!-- Step 2: Stay Duration -->
+        <div *ngIf="currentStep === 2" class="col-span-2 space-y-6">
+          <h2 class="text-xl font-semibold text-gray-800 text-center">Select Stay Duration</h2>
+          <div class="relative">
+            <label for="stayDuration" class="block text-sm font-medium text-gray-700 mb-2">Stay Duration</label>
+            <select
+              id="stayDuration"
+              formControlName="stayDuration"
+              class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              [class.border-red-500]="visitorForm.get('stayDuration')?.touched && visitorForm.get('stayDuration')?.invalid"
+            >
+              <option *ngFor="let duration of durationOptions" [value]="duration">
+                {{ duration }} Hour{{ duration > 1 ? 's' : '' }} - ₹{{ duration * 80 }}
+              </option>
+            </select>
+            <div *ngIf="visitorForm.get('stayDuration')?.touched && visitorForm.get('stayDuration')?.invalid" class="text-red-600 text-xs mt-1">
+              <p *ngIf="visitorForm.get('stayDuration')?.errors?.['required']">Stay duration is required.</p>
+            </div>
+          </div>
+
+          <div class="flex justify-between gap-4">
+            <button
+              (click)="prevStep()"
+              class="w-full bg-gray-500 text-white p-3 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-300"
+            >
+              Back
+            </button>
+            <button
+              (click)="onSubmit()"
+              [disabled]="visitorForm.invalid || paymentPending"
+              class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              {{ paymentPending ? 'Processing...' : 'Proceed to Payment' }}
+            </button>
           </div>
         </div>
 
-        <button
-          type="submit"
-          [disabled]="visitorForm.invalid"
-          class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300"
-        >
-          Check In
-        </button>
+        <!-- Messages -->
+        <div class="col-span-2">
+          <p *ngIf="errorMessage" class="text-red-600 text-center text-sm font-medium animate-pulse">
+            {{ errorMessage }}
+          </p>
+          <p *ngIf="successMessage" class="text-green-600 text-center text-sm font-medium animate-pulse">
+            {{ successMessage }}
+          </p>
+        </div>
 
-        <p *ngIf="errorMessage" class="text-red-600 text-center text-sm font-medium animate-pulse">
-          {{ errorMessage }}
-        </p>
+        <!-- Payment Element -->
+        <div *ngIf="paymentPending" class="col-span-2 mt-6 p-4 bg-gray-100 rounded-lg shadow-inner">
+          <p class="text-gray-700 text-center mb-2">Enter your payment details below:</p>
+          <div #paymentElement></div>
+        </div>
       </form>
     </div>
   </div>
