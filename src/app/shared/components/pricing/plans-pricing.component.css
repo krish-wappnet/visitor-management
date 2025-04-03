@@ -1,0 +1,32 @@
+:host {
+    display: block;
+  }
+  
+  /* Ensure the cards have equal height */
+  .flex {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .flex-grow {
+    flex-grow: 1;
+  }
+  
+  /* Optional: Highlight Premium tier */
+  .border-blue-500 {
+    position: relative;
+  }
+  
+  .border-blue-500::before {
+    content: 'Most Popular';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3b82f6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+  }

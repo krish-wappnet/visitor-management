@@ -9,13 +9,15 @@ import { VisitorComponent } from './visitor.component';
 import { MyVisitsComponent } from './components/my-visits/my-visits.component';
 import { QrCodeScannerComponent } from './components/qr-code-scanner/qr-code-scanner.component';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { PlansPricingComponent } from '../../shared/components/pricing/plans-pricing.component';
 
 @NgModule({
   declarations: [
     VisitorComponent,
     VisitorCheckinComponent,
     MyVisitsComponent,
-    QrCodeScannerComponent
+    QrCodeScannerComponent,
+    PlansPricingComponent
   ],
   imports: [
     CommonModule,

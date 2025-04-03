@@ -1,23 +1,43 @@
 <div class="min-h-screen bg-gray-50">
-  <!-- Fixed Navbar (unchanged) -->
-  <nav class="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
-    <div class="container mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
-      <h1 class="text-3xl font-extrabold text-gray-900 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">
+  <!-- Enhanced Navbar -->
+  <nav class="fixed top-0 left-0 w-full bg-white shadow-lg z-50 border-b border-gray-100">
+    <div class="container mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-6">
+      <!-- Logo/Title with Animation -->
+      <h1 class="text-3xl font-extrabold text-gray-900 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent transform hover:scale-105 transition-transform duration-300">
         My Visits
       </h1>
-      <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-        <a routerLink="/visitor/my-visits" class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200">
+      <!-- Navigation Links -->
+      <div class="flex flex-col sm:flex-row items-center gap-6">
+        <a
+          (click)="openPlansPricingModal()"
+          class="relative text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 cursor-pointer group"
+        >
+          Plans & Pricing
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a
+          routerLink="/visitor/my-visits"
+          class="relative text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 group"
+        >
           My Visits
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
         </a>
-        <a routerLink="/visitor/checkin" class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200">
+        <a
+          (click)="goToCheckIn()"
+          class="relative text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 group cursor-pointer"
+        >
           Book a Visit
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
         </a>
-        <span *ngIf="userEmail" class="text-gray-600 text-sm font-medium">
-          Logged in as: <span class="text-gray-800">{{ userEmail }}</span>
+        <span *ngIf="userEmail" class="text-gray-600 text-sm font-medium flex items-center gap-2">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span class="text-gray-800">{{ userEmail }}</span>
         </span>
         <button
           (click)="logout()"
-          class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-sm"
+          class="bg-gradient-to-r from-red-500 to-red-600 text-white px-5 py-2 rounded-full font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md transform hover:scale-105"
         >
           Logout
         </button>
@@ -125,6 +145,86 @@
       </div>
       <div class="flex justify-center">
         <app-qr-code-generator [visitorData]="getCheckOutUrl(selectedVisitorId)"></app-qr-code-generator>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans & Pricing Modal (Optimized Styles) -->
+  <div *ngIf="showPlansModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-6 max-w-4xl w-full mx-4 shadow-xl transform scale-100 transition-all duration-300 overflow-y-auto max-h-[90vh]">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Plans & Pricing
+        </h2>
+        <button
+          (click)="closePlansPricingModal()"
+          class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- Optimized Plans & Pricing Content -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- Basic Tier -->
+        <div class="bg-white shadow-lg rounded-xl p-4 flex flex-col transform hover:scale-102 transition-all duration-300">
+          <h3 class="text-lg font-semibold text-gray-800 text-center mb-2">Basic</h3>
+          <p class="text-gray-600 text-center text-sm mb-3">For individuals or small teams</p>
+          <div class="text-center mb-3">
+            <span class="text-2xl font-bold text-blue-600">₹499</span>
+            <span class="text-gray-500 text-xs">/month</span>
+          </div>
+          <ul class="space-y-2 flex-grow text-sm text-gray-700">
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Up to 5 users</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>50 bookings/month</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Basic reporting</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Email support</li>
+          </ul>
+          <button class="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 text-sm">
+            Get Started
+          </button>
+        </div>
+
+        <!-- Premium Tier -->
+        <div class="bg-white shadow-lg rounded-xl p-4 flex flex-col transform hover:scale-102 transition-all duration-300 border-2 border-blue-500 relative">
+          <span class="absolute top-1 right-1 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Most Popular</span>
+          <h3 class="text-lg font-semibold text-gray-800 text-center mb-2">Premium</h3>
+          <p class="text-gray-600 text-center text-sm mb-3">For growing teams</p>
+          <div class="text-center mb-3">
+            <span class="text-2xl font-bold text-blue-600">₹1499</span>
+            <span class="text-gray-500 text-xs">/month</span>
+          </div>
+          <ul class="space-y-2 flex-grow text-sm text-gray-700">
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Up to 25 users</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>200 bookings/month</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Advanced reporting</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Email & chat support</li>
+          </ul>
+          <button class="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 text-sm">
+            Get Started
+          </button>
+        </div>
+
+        <!-- Corporate Tier -->
+        <div class="bg-white shadow-lg rounded-xl p-4 flex flex-col transform hover:scale-102 transition-all duration-300">
+          <h3 class="text-lg font-semibold text-gray-800 text-center mb-2">Corporate</h3>
+          <p class="text-gray-600 text-center text-sm mb-3">For large organizations</p>
+          <div class="text-center mb-3">
+            <span class="text-2xl font-bold text-blue-600">Custom</span>
+            <span class="text-gray-500 text-xs">/month</span>
+          </div>
+          <ul class="space-y-2 flex-grow text-sm text-gray-700">
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Unlimited users</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Unlimited bookings</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Custom analytics</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>24/7 support</li>
+            <li class="flex items-center"><svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Custom pricing</li>
+          </ul>
+          <button (click)="contactUs()" class="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 text-sm">
+            Contact Us
+          </button>
+        </div>
       </div>
     </div>
   </div>

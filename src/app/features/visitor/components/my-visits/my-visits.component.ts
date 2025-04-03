@@ -10,7 +10,7 @@ import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-my-visits',
-  standalone: false,
+  standalone: false, // As requested
   templateUrl: './my-visits.component.html',
   styleUrls: ['./my-visits.component.scss'],
 })
@@ -23,6 +23,7 @@ export class MyVisitsComponent implements OnInit {
   pageSize: number = 5; // Maximum 5 entries per page
   totalPages: number = 1;
   allVisits: Visitor[] = []; // Store all visits for pagination
+  showPlansModal: boolean = false; // Modal state
 
   constructor(
     private firestore: Firestore,
@@ -43,11 +44,11 @@ export class MyVisitsComponent implements OnInit {
             phone: v.phone,
             purpose: v.purpose,
             checkIn: v.checkIn instanceof Timestamp ? v.checkIn.toDate() : new Date(v.checkIn),
-            stayDuration: v.stayDuration || 0, // Include stayDuration
-            checkOutTime: v.checkOutTime ? (v.checkOutTime instanceof Timestamp ? v.checkOutTime.toDate() : new Date(v.checkOutTime)) : undefined, // Include checkOutTime
+            stayDuration: v.stayDuration || 0,
+            checkOutTime: v.checkOutTime ? (v.checkOutTime instanceof Timestamp ? v.checkOutTime.toDate() : new Date(v.checkOutTime)) : undefined,
             checkOut: v.checkOut ? (v.checkOut instanceof Timestamp ? v.checkOut.toDate() : new Date(v.checkOut)) : undefined,
             email: v.email,
-            isCheckedIn: v.isCheckedIn !== undefined ? v.isCheckedIn : !v.checkOut, // Include isCheckedIn
+            isCheckedIn: v.isCheckedIn !== undefined ? v.isCheckedIn : !v.checkOut,
           } as Visitor)))
         );
         this.myVisits$.subscribe(visits => {
@@ -93,6 +94,19 @@ export class MyVisitsComponent implements OnInit {
 
   showQRCode(visitorId: string) {
     this.selectedVisitorId = this.selectedVisitorId === visitorId ? null : visitorId;
+  }
+
+  openPlansPricingModal() {
+    this.showPlansModal = true;
+  }
+
+  closePlansPricingModal() {
+    this.showPlansModal = false;
+  }
+
+  contactUs() {
+    console.log('Contact Us clicked for Corporate tier');
+    // Optionally: window.location.href = 'mailto:sales@yourdomain.com?subject=Corporate Plan Inquiry';
   }
 
   async logout() {
