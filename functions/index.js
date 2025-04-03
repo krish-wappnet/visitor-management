@@ -1,25 +1,25 @@
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
 
 // Initialize Firebase Admin
 admin.initializeApp();
 
 const db = admin.firestore();
 
-export const checkOutVisitor = functions.https.onRequest(async (req, res) => {
+exports.checkOutVisitor = functions.https.onRequest(async (req, res) => {
   // Enable CORS to allow requests from different devices
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'GET, POST');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
 
   // Handle preflight requests (OPTIONS)
-  if (req.method === 'OPTIONS') {
-    res.status(204).send('');
+  if (req.method === "OPTIONS") {
+    res.status(204).send("");
     return;
   }
 
   // Only allow GET requests
-  if (req.method !== 'GET') {
+  if (req.method !== "GET") {
     res.status(405).send(`
       <html>
         <body>
@@ -32,7 +32,7 @@ export const checkOutVisitor = functions.https.onRequest(async (req, res) => {
   }
 
   // Get the visitorId from the query parameter
-  const visitorId = req.query['visitorId'] as string;
+  const visitorId = req.query.visitorId;
 
   if (!visitorId) {
     res.status(400).send(`
@@ -47,7 +47,7 @@ export const checkOutVisitor = functions.https.onRequest(async (req, res) => {
   }
 
   try {
-    const visitorRef = db.collection('visitors').doc(visitorId);
+    const visitorRef = db.collection("visitors").doc(visitorId);
     const visitorDoc = await visitorRef.get();
 
     if (!visitorDoc.exists) {
@@ -63,7 +63,7 @@ export const checkOutVisitor = functions.https.onRequest(async (req, res) => {
     }
 
     const visitorData = visitorDoc.data();
-    if (visitorData?.['checkOut']) {
+    if (visitorData && visitorData.checkOut) {
       res.status(400).send(`
         <html>
           <body>
@@ -88,8 +88,8 @@ export const checkOutVisitor = functions.https.onRequest(async (req, res) => {
         </body>
       </html>
     `);
-  } catch (error: any) {
-    console.error('Error checking out visitor:', error);
+  } catch (error) {
+    console.error("Error checking out visitor:", error);
     res.status(500).send(`
       <html>
         <body>
